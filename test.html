@@ -51,7 +51,7 @@ balance: 1000
 
 if(error){
 console.log(error)
-document.getElementById("status").innerText = "Signup failed"
+document.getElementById("status").innerText = error.message
 }else{
 document.getElementById("status").innerText = "Signup success"
 }

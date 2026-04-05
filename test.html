@@ -95,6 +95,9 @@ right:10px;
 top:10px;
 cursor:pointer;
 opacity:.7;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
 button{
@@ -180,7 +183,7 @@ Continue with Google
 
 </button>
 
-<form id="form">
+<form id="form" onsubmit="return false;">
 
 <div id="fullnameField" style="display:none;">
 <div class="input-group">
@@ -197,38 +200,31 @@ Continue with Google
 <input type="password" id="password" placeholder="Password">
 
 <div class="eye" onclick="togglePassword(this,'password')">
-
 <svg viewBox="0 0 24 24" width="18" height="18">
 <path fill="none" stroke="#94a3b8" stroke-width="2"
 d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
 <circle cx="12" cy="12" r="3"
 fill="none" stroke="#94a3b8" stroke-width="2"/>
 </svg>
-
 </div>
 
 </div>
 
 <div id="confirmField" style="display:none;">
 <div class="input-group">
-
 <input type="password" id="confirm" placeholder="Confirm Password">
-
 <div class="eye" onclick="togglePassword(this,'confirm')">
-
 <svg viewBox="0 0 24 24" width="18" height="18">
 <path fill="none" stroke="#94a3b8" stroke-width="2"
 d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
 <circle cx="12" cy="12" r="3"
 fill="none" stroke="#94a3b8" stroke-width="2"/>
 </svg>
-
-</div>
-
 </div>
 </div>
+</div>
 
-<button type="submit">Continue</button>
+<button onclick="submitForm()">Continue</button>
 
 </form>
 
@@ -264,17 +260,14 @@ document.getElementById("backBtn").href=`https://${from}.cupx.in`
 }
 
 function redirectBack(){
-
 if(from){
 window.location.href=`https://${from}.cupx.in`
 }else{
 window.location.href="https://cupx.in"
 }
-
 }
 
 function toggleMode(){
-
 signup=!signup
 
 document.getElementById("title").innerText=
@@ -289,7 +282,6 @@ signup?"block":"none"
 document.getElementById("switchText").innerText=
 signup?"Already have account? Signin":
 "Don't have account? Signup"
-
 }
 
 function togglePassword(el,id){
@@ -297,31 +289,9 @@ function togglePassword(el,id){
 const input=document.getElementById(id)
 
 if(input.type==="password"){
-
 input.type="text"
-
-el.innerHTML=`
-<svg viewBox="0 0 24 24" width="18" height="18">
-<path fill="none" stroke="#94a3b8" stroke-width="2"
-d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8"/>
-<path fill="none" stroke="#94a3b8" stroke-width="2"
-d="M1 1l22 22"/>
-</svg>
-`
-
 }else{
-
 input.type="password"
-
-el.innerHTML=`
-<svg viewBox="0 0 24 24" width="18" height="18">
-<path fill="none" stroke="#94a3b8" stroke-width="2"
-d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
-<circle cx="12" cy="12" r="3"
-fill="none" stroke="#94a3b8" stroke-width="2"/>
-</svg>
-`
-
 }
 
 }
@@ -330,27 +300,12 @@ function showError(msg){
 document.getElementById("message").innerHTML=`<div class="error">${msg}</div>`
 }
 
-function validateUsername(u){
-return /^[a-z0-9]{11,22}$/.test(u)
-}
-
-function validatePassword(p){
-return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(p)
-}
-
-document.getElementById("form").addEventListener("submit",async e=>{
-
-e.preventDefault()
+async function submitForm(){
 
 const username=document.getElementById("username").value
 const password=document.getElementById("password").value
 const confirm=document.getElementById("confirm").value
 const fullname=document.getElementById("fullname").value
-
-if(!validateUsername(username)){
-showError("Invalid username format")
-return
-}
 
 if(signup){
 
@@ -364,22 +319,13 @@ showError("Passwords do not match")
 return
 }
 
-if(!validatePassword(password)){
-showError("Weak password")
-return
-}
-
 const {error}=await supabase
 .from("users")
 .insert([{
-
 username,
 full_name:fullname,
 password,
-upi_id:username+"@cupx",
-account_status:"active",
-role:"user"
-
+upi_id:username+"@cupx"
 }])
 
 if(error){
@@ -409,13 +355,24 @@ redirectBack()
 
 }
 
-})
+}
 
 async function googleLogin(){
+
 await supabase.auth.signInWithOAuth({
-provider:"google"
-})
+provider:"google",
+options:{
+redirectTo:window.location.href
 }
+})
+
+}
+
+supabase.auth.getSession().then(({data})=>{
+if(data.session){
+redirectBack()
+}
+})
 
 </script>
 

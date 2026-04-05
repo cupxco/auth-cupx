@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | CupX Corporation</title>
+  <meta name="description" content="Login portal for CupX Corporation tools and services." />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    header {
+      background: #020617;
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .page {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: #020617;
+      padding: 30px;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.85;
+      margin: 0 0 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 18px;
+      border-radius: 4px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      background: #1e293b;
+      color: #e5e7eb;
+    }
+
+    input:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: #38bdf8;
+      color: #020617;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0ea5e9;
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .popup.show {
+      display: flex;
+    }
+
+    .popup-box {
+      background: #020617;
+      border: 1px solid #38bdf8;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .popup-emoji {
+      font-size: 52px;
+      margin-bottom: 12px;
+    }
+
+    .popup-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #38bdf8;
+      margin-bottom: 10px;
+    }
+
+    .popup-text {
+      font-size: 14px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .popup-close {
+      width: auto;
+      padding: 8px 24px;
+      font-size: 14px;
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 13px;
+      text-align: center;
+      opacity: 0.7;
+      line-height: 1.6;
+    }
+
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <strong>CupX Corporation</strong>
+  <a href="https://cupx.in">← Back to Home</a>
+</header>
+
+<div class="page">
+  <div class="login-box">
+    <h1>CupX Login</h1>
+    <p class="subtitle">Access CupX tools & services</p>
+
+    <form>
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@cupx.in" disabled>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="••••••••" disabled>
+
+      <button type="button" onclick="tryLogin()">Login</button>
+    </form>
+
+    <div class="note">
+      Login system is under development.<br>
+      For now, contact us at
+      <a href="mailto:info@cupx.in">info@cupx.in</a>
+    </div>
+  </div>
+</div>
+
+<!-- Funny popup -->
+<div class="popup" id="popup">
+  <div class="popup-box">
+    <div class="popup-emoji" id="popupEmoji"></div>
+    <div class="popup-title" id="popupTitle"></div>
+    <div class="popup-text" id="popupText"></div>
+    <button class="popup-close" onclick="closePopup()">OK fine 😔</button>
+  </div>
+</div>
+
+<script>
+const messages = [
+  {
+    emoji: "🚧",
+    title: "Bro seriously?",
+    text: "The inputs are literally disabled. Did you think clicking harder would help?"
+  },
+  {
+    emoji: "🤖",
+    title: "Access Denied",
+    text: "Error 418: I'm a teapot. Also, the login doesn't exist yet. But mostly the teapot thing."
+  },
+  {
+    emoji: "👀",
+    title: "Interesting move.",
+    text: "You clicked a button on a page that says 'under development'. Respect the audacity honestly."
+  },
+  {
+    emoji: "🔐",
+    title: "Wrong password.",
+    text: "Just kidding — you didn't even enter one. The fields are disabled. You're logging into the void."
+  },
+  {
+    emoji: "📞",
+    title: "Have you tried turning it off and on again?",
+    text: "Our developers are working on the login system. By developers we mean one sleep-deprived person."
+  },
+  {
+    emoji: "🧃",
+    title: "CupX says no.",
+    text: "The login portal is under construction. Please hydrate and check back later."
+  },
+  {
+    emoji: "💀",
+    title: "404: Login Not Found",
+    text: "It's not you. It's us. Actually it's definitely us. We haven't built it yet."
+  },
+];
+
+let lastIndex = -1;
+
+function tryLogin() {
+  let index;
+  do { index = Math.floor(Math.random() * messages.length); }
+  while (index === lastIndex);
+  lastIndex = index;
+
+  const m = messages[index];
+  document.getElementById("popupEmoji").innerText = m.emoji;
+  document.getElementById("popupTitle").innerText = m.title;
+  document.getElementById("popupText").innerText  = m.text;
+  document.getElementById("popup").classList.add("show");
+}
+
+function closePopup() {
+  document.getElementById("popup").classList.remove("show");
+}
+
+// Close on backdrop click
+document.getElementById("popup").addEventListener("click", function(e) {
+  if (e.target === this) closePopup();
+});
+      </script>

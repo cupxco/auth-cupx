@@ -17,7 +17,6 @@
             flex-direction: column;
         }
 
-        /* Header Styling */
         header {
             background: #020617;
             padding: 18px 25px;
@@ -32,7 +31,6 @@
 
         .page { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
 
-        /* Auth Box */
         .box {
             background: #020617;
             padding: 35px;
@@ -40,17 +38,17 @@
             max-width: 400px;
             border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            text-align: center;
         }
 
-        h1 { text-align: center; margin-bottom: 8px; font-size: 26px; color: #f8fafc; }
-        .subtitle { text-align: center; font-size: 14px; opacity: .7; margin-bottom: 25px; }
+        h1, h2 { margin-bottom: 8px; font-size: 26px; color: #f8fafc; }
+        .subtitle { font-size: 14px; opacity: .7; margin-bottom: 25px; }
 
-        /* Unified Input Styling */
-        .input-group { position: relative; margin-bottom: 20px; width: 100%; }
+        .input-group { position: relative; margin-bottom: 20px; width: 100%; text-align: left; }
 
         input {
             width: 100%;
-            height: 48px; /* Equal height for all boxes */
+            height: 48px;
             padding: 0 15px;
             border-radius: 6px;
             border: 1px solid #334155;
@@ -58,13 +56,11 @@
             color: #ffffff;
             font-size: 15px;
             outline: none;
-            transition: border 0.2s;
             display: block;
         }
 
         input:focus { border-color: #38bdf8; }
 
-        /* Text-based Show/Hide Toggle */
         .toggle-text {
             position: absolute;
             right: 15px;
@@ -76,10 +72,8 @@
             color: #38bdf8;
             text-transform: uppercase;
             user-select: none;
-            letter-spacing: 0.5px;
         }
 
-        /* Buttons */
         button {
             width: 100%;
             height: 48px;
@@ -90,22 +84,10 @@
             font-weight: bold;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 5px;
-            transition: opacity 0.2s;
+            margin-top: 10px;
         }
 
-        button:hover { opacity: 0.9; }
-
-        .google-btn {
-            background: #ffffff;
-            color: #1f2937;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 25px;
-            border: 1px solid #e5e7eb;
-        }
+        .logout-btn { background: #ef4444; color: white; margin-top: 20px; }
 
         .switch {
             text-align: center;
@@ -115,9 +97,10 @@
             cursor: pointer;
         }
 
-        .error { color: #f87171; font-size: 13px; text-align: center; margin-bottom: 15px; min-height: 18px; }
+        .error { color: #f87171; font-size: 13px; margin-bottom: 15px; min-height: 18px; }
 
-        /* Footer */
+        #userInfo { margin: 20px 0; font-size: 15px; line-height: 1.6; background: #1e293b; padding: 15px; border-radius: 8px; }
+
         footer {
             background: #020617;
             padding: 25px;
@@ -131,21 +114,16 @@
 <body>
 
 <header>
-    <div class="logo">CupX Corporation</div>
-    <a href="https://cupx.in">← Back to Home</a>
+    <div class="logo">CupX Corp</div>
+    <a href="https://cupx.in">← Home</a>
 </header>
 
 <div class="page">
-    <div class="box">
+    <div class="box" id="authBox">
         <h1 id="title">Sign in</h1>
-        <p class="subtitle">Access CupX ecosystem</p>
+        <p class="subtitle">Access CupX tools & services</p>
         
         <div id="msg" class="error"></div>
-
-        <button class="google-btn" onclick="googleLogin()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
-            Continue with Google
-        </button>
 
         <form id="authForm">
             <div id="nameDiv" style="display:none" class="input-group">
@@ -173,6 +151,16 @@
             Don't have account? Signup
         </div>
     </div>
+
+    <div class="box" id="dashboardBox" style="display: none;">
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Logged into CupX ecosystem</p>
+        
+        <div id="userInfo"></div>
+
+        <button onclick="window.location.href='https://cupx.in'">Go to Home</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
 </div>
 
 <footer>
@@ -180,12 +168,10 @@
 </footer>
 
 <script>
-    // Supabase Configuration
     const client = supabase.createClient("https://astnfrwbebzxcxlltpkn.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdG5mcndiZWJ6eGN4bGx0cGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjg2OTIsImV4cCI6MjA5MDgwNDY5Mn0.gqp08ROPoDZWyE0KVtV-VCFdTmEXl4HOEL8v7Xjd0I4");
 
     let isSignup = false;
 
-    // Toggle between Login and Signup modes
     function toggleMode() {
         isSignup = !isSignup;
         document.getElementById('title').innerText = isSignup ? "Sign up" : "Sign in";
@@ -195,7 +181,6 @@
         document.getElementById('msg').innerText = "";
     }
 
-    // Toggle Password visibility with Text
     function togglePass(fieldId, btnElement) {
         const field = document.getElementById(fieldId);
         if (field.type === "password") {
@@ -207,10 +192,24 @@
         }
     }
 
-    // Form Submission Handling
+    function showDashboard(user) {
+        document.getElementById('authBox').style.display = 'none';
+        document.getElementById('dashboardBox').style.display = 'block';
+        document.getElementById('userInfo').innerHTML = `
+            <strong>User:</strong> ${user.username}<br>
+            <strong>UPI ID:</strong> ${user.upi_id}<br>
+            <strong>Balance:</strong> ₹${user.balance}
+        `;
+    }
+
+    function logout() {
+        localStorage.removeItem("cupx_user");
+        location.reload();
+    }
+
     document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const u = document.getElementById('user').value.trim();
+        const u = document.getElementById('user').value.trim().toLowerCase();
         const p = document.getElementById('pass').value;
         const msg = document.getElementById('msg');
         msg.innerText = "";
@@ -221,43 +220,30 @@
 
             if (!fn) return msg.innerText = "Full name is required";
             if (p !== cp) return msg.innerText = "Passwords do not match";
-            if (p.length < 6) return msg.innerText = "Password must be at least 6 characters";
 
             const { error } = await client.from('users').insert([{ 
-                username: u.toLowerCase(), 
-                password: p, 
-                full_name: fn, 
-                upi_id: u.toLowerCase() + "@cupx",
-                balance: 1000 
+                username: u, password: p, full_name: fn, upi_id: u + "@cupx", balance: 1000 
             }]);
 
             if (error) msg.innerText = error.message;
-            else { alert("Signup Successful! You can now login."); toggleMode(); }
+            else { alert("Signup Successful! Please Login."); toggleMode(); }
             
         } else {
-            // Login Logic
-            const { data, error } = await client.from('users')
-                .select('*')
-                .eq('username', u.toLowerCase())
-                .eq('password', p)
-                .single();
+            const { data, error } = await client.from('users').select('*').eq('username', u).eq('password', p).single();
 
             if (error || !data) {
-                msg.innerText = "Invalid credentials. Please try again.";
+                msg.innerText = "Invalid credentials.";
             } else {
                 localStorage.setItem("cupx_user", JSON.stringify(data));
-                const params = new URLSearchParams(window.location.search);
-                const from = params.get("from");
-                window.location.href = from ? `https://${from}.cupx.in` : "https://cupx.in";
+                showDashboard(data);
             }
         }
     });
 
-    async function googleLogin() {
-        await client.auth.signInWithOAuth({
-            provider: 'google',
-            options: { redirectTo: window.location.origin }
-        });
+    // On Load: Check if user is already logged in
+    const savedUser = JSON.parse(localStorage.getItem("cupx_user"));
+    if (savedUser) {
+        showDashboard(savedUser);
     }
 </script>
 </body>

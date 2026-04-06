@@ -1,272 +1,342 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Auth | CupX Corporation</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f172a;
-            color: #ffffff; /* Global White Text */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Auth | CupX Corporation</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-        header {
-            background: #020617;
-            padding: 18px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #1e293b;
-        }
+<style>
+*, *::before, *::after { box-sizing: border-box; }
 
-        .logo { font-size: 20px; font-weight: bold; color: #ffffff; letter-spacing: 1px; }
-        header a { color: #38bdf8; text-decoration: none; font-size: 14px; }
+body {
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#0f172a;
+color:#ffffff;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+}
 
-        .page { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+header {
+background:#020617;
+padding:18px 25px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom: 1px solid #1e293b;
+}
 
-        .box {
-            background: #020617;
-            padding: 35px;
-            width: 100%;
-            max-width: 400px;
-            border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            text-align: center;
-        }
+.logo { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
+header a { color: #38bdf8; text-decoration: none; font-size: 14px; }
 
-        h1, h2 { margin-bottom: 8px; font-size: 26px; color: #ffffff; }
-        .subtitle { font-size: 14px; opacity: .7; margin-bottom: 25px; color: #cbd5e1; }
+.page { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
 
-        .input-group { position: relative; margin-bottom: 20px; width: 100%; text-align: left; }
+.box {
+background: #020617;
+padding: 35px;
+width: 100%;
+max-width: 400px;
+border-radius: 12px;
+box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+text-align: center;
+}
 
-        input {
-            width: 100%;
-            height: 48px;
-            padding: 0 15px;
-            border-radius: 6px;
-            border: 1px solid #334155;
-            background: #1e293b;
-            color: #ffffff;
-            font-size: 15px;
-            outline: none;
-            display: block;
-        }
+h1, h2 { margin-bottom: 8px; font-size: 26px; }
+.subtitle { font-size: 14px; opacity: .7; margin-bottom: 25px; color: #cbd5e1; }
 
-        input:focus { border-color: #38bdf8; }
+.input-group { position: relative; margin-bottom: 20px; text-align: left; }
 
-        .toggle-text {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: bold;
-            color: #38bdf8;
-            text-transform: uppercase;
-            user-select: none;
-        }
+input {
+width: 100%;
+height: 48px;
+padding: 0 15px;
+border-radius: 6px;
+border: 1px solid #334155;
+background: #1e293b;
+color: #ffffff;
+font-size: 15px;
+outline: none;
+}
 
-        button {
-            width: 100%;
-            height: 45px;
-            background: #38bdf8;
-            color: #020617;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: 0.2s;
-        }
+.toggle-text {
+position: absolute;
+right: 15px;
+top: 50%;
+transform: translateY(-50%);
+cursor: pointer;
+font-size: 11px;
+font-weight: bold;
+color: #38bdf8;
+}
 
-        button:hover { opacity: 0.9; }
+button {
+width: 100%;
+height: 45px;
+background: #38bdf8;
+color: #020617;
+border: none;
+border-radius: 6px;
+font-weight: bold;
+font-size: 15px;
+cursor: pointer;
+margin-top: 10px;
+}
 
-        /* Subsidiary Buttons */
-        .sub-grid {
-            display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #334155;
-        }
+.sub-grid {
+display: none;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
+margin-top: 15px;
+padding-top: 15px;
+border-top: 1px solid #334155;
+}
 
-        .sub-btn {
-            background: #1e293b;
-            color: #38bdf8;
-            border: 1px solid #334155;
-            height: 40px;
-            font-size: 13px;
-        }
+.sub-btn {
+background: #1e293b;
+color: #38bdf8;
+border: 1px solid #334155;
+height: 40px;
+font-size: 13px;
+}
 
-        .sub-btn:hover { background: #334155; color: #ffffff; }
+.logout-btn { background: #ef4444; color: white; margin-top: 15px; }
 
-        .logout-btn { background: #ef4444; color: white; margin-top: 15px; }
+.switch {
+text-align: center;
+font-size: 14px;
+color: #38bdf8;
+margin-top: 20px;
+cursor: pointer;
+}
 
-        .switch {
-            text-align: center;
-            font-size: 14px;
-            color: #38bdf8;
-            margin-top: 20px;
-            cursor: pointer;
-        }
+.error { color: #f87171; font-size: 13px; margin-bottom: 15px; min-height: 18px; }
 
-        .error { color: #f87171; font-size: 13px; margin-bottom: 15px; min-height: 18px; }
+#userInfo {
+margin: 15px 0;
+font-size: 14px;
+background: #1e293b;
+padding: 15px;
+border-radius: 8px;
+text-align: left;
+}
 
-        #userInfo { margin: 15px 0; font-size: 14px; line-height: 1.6; background: #1e293b; padding: 15px; border-radius: 8px; text-align: left; }
-
-        footer {
-            background: #020617;
-            padding: 25px;
-            text-align: center;
-            font-size: 12px;
-            color: #94a3b8;
-            border-top: 1px solid #1e293b;
-        }
-    </style>
+footer {
+background: #020617;
+padding: 25px;
+text-align: center;
+font-size: 12px;
+color: #94a3b8;
+border-top: 1px solid #1e293b;
+}
+</style>
 </head>
+
 <body>
 
 <header>
-    <div class="logo">CupX Corporation</div>
-    <a href="https://cupx.in">← Back to Home</a>
+<div class="logo">CupX Corporation</div>
+<a id="backBtn" href="https://cupx.in">← Back</a>
 </header>
 
 <div class="page">
-    <div class="box" id="authBox">
-        <h1 id="title">Sign in</h1>
-        <p class="subtitle">Access CupX tools & services</p>
-        
-        <div id="msg" class="error"></div>
 
-        <form id="authForm">
-            <div id="nameDiv" style="display:none" class="input-group">
-                <input type="text" id="fullname" placeholder="Full Name">
-            </div>
-            
-            <div class="input-group">
-                <input type="text" id="user" placeholder="Username" required>
-            </div>
+<div class="box" id="authBox">
 
-            <div class="input-group">
-                <input type="password" id="pass" placeholder="Password" required>
-                <span class="toggle-text" onclick="togglePass('pass', this)">Show</span>
-            </div>
+<h1 id="title">Sign in</h1>
+<p class="subtitle">Access CupX tools & services</p>
 
-            <div id="confirmDiv" style="display:none" class="input-group">
-                <input type="password" id="confirmPass" placeholder="Confirm Password">
-                <span class="toggle-text" onclick="togglePass('confirmPass', this)">Show</span>
-            </div>
+<div id="msg" class="error"></div>
 
-            <button type="submit">Continue</button>
-        </form>
+<form id="authForm">
 
-        <div class="switch" onclick="toggleMode()" id="switchBtn">
-            Don't have account? Signup
-        </div>
-    </div>
+<div id="nameDiv" style="display:none" class="input-group">
+<input type="text" id="fullname" placeholder="Full Name">
+</div>
 
-    <div class="box" id="dashboardBox" style="display: none;">
-        <h2>Welcome Back</h2>
-        <div id="userInfo"></div>
+<div class="input-group">
+<input type="text" id="user" placeholder="Username" required>
+</div>
 
-        <button onclick="window.location.href='https://cupx.in'">Go to Home</button>
-        
-        <button id="subToggle" onclick="toggleSubs()" style="background: #ffffff; color: #020617;">Open Subsidiaries</button>
-        
-        <div class="sub-grid" id="subsidiaryList">
-            <button class="sub-btn" onclick="window.location.href='https://amazx.cupx.in'">AmazX</button>
-            <button class="sub-btn" onclick="window.location.href='https://flipx.cupx.in'">FlipX</button>
-            <button class="sub-btn" onclick="window.location.href='https://pay.cupx.in'">Pay</button>
-            <button class="sub-btn" onclick="window.location.href='https://upi.cupx.in'">UPI</button>
-        </div>
+<div class="input-group">
+<input type="password" id="pass" placeholder="Password" required>
+<span class="toggle-text" onclick="togglePass('pass', this)">Show</span>
+</div>
 
-        <button class="logout-btn" onclick="logout()">Logout</button>
-    </div>
+<div id="confirmDiv" style="display:none" class="input-group">
+<input type="password" id="confirmPass" placeholder="Confirm Password">
+<span class="toggle-text" onclick="togglePass('confirmPass', this)">Show</span>
+</div>
+
+<button type="submit">Continue</button>
+
+</form>
+
+<div class="switch" onclick="toggleMode()" id="switchBtn">
+Don't have account? Signup
+</div>
+
+</div>
+
+<div class="box" id="dashboardBox" style="display:none;">
+
+<h2>Welcome Back</h2>
+
+<div id="userInfo"></div>
+
+<button id="homeBtn">Go to Home</button>
+
+<button id="subToggle" onclick="toggleSubs()" style="background:#fff;color:#020617;">
+Open Subsidiaries
+</button>
+
+<div class="sub-grid" id="subsidiaryList">
+<button class="sub-btn" onclick="goTo('amazx')">AmazX</button>
+<button class="sub-btn" onclick="goTo('flipx')">FlipX</button>
+<button class="sub-btn" onclick="goTo('pay')">Pay</button>
+<button class="sub-btn" onclick="goTo('upi')">UPI</button>
+</div>
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+
+</div>
+
 </div>
 
 <footer>
-    © 2026 CupX Corporation • Secure Authentication System
+© 2026 CupX Corporation • Secure Authentication System
 </footer>
 
 <script>
-    const client = supabase.createClient("https://astnfrwbebzxcxlltpkn.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdG5mcndiZWJ6eGN4bGx0cGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjg2OTIsImV4cCI6MjA5MDgwNDY5Mn0.gqp08ROPoDZWyE0KVtV-VCFdTmEXl4HOEL8v7Xjd0I4");
 
-    let isSignup = false;
+const client = supabase.createClient(
+"https://astnfrwbebzxcxlltpkn.supabase.co",
+"YOUR_ANON_KEY"
+)
 
-    function toggleMode() {
-        isSignup = !isSignup;
-        document.getElementById('title').innerText = isSignup ? "Sign up" : "Sign in";
-        document.getElementById('nameDiv').style.display = isSignup ? "block" : "none";
-        document.getElementById('confirmDiv').style.display = isSignup ? "block" : "none";
-        document.getElementById('switchBtn').innerText = isSignup ? "Already have account? Signin" : "Don't have account? Signup";
-        document.getElementById('msg').innerText = "";
-    }
+const params = new URLSearchParams(window.location.search)
+const from = params.get("from")
 
-    function togglePass(fieldId, btnElement) {
-        const field = document.getElementById(fieldId);
-        btnElement.innerText = (field.type === "password") ? "Hide" : "Show";
-        field.type = (field.type === "password") ? "text" : "password";
-    }
+if(from){
+document.getElementById("backBtn").href = `https://${from}.cupx.in`
+}
 
-    function toggleSubs() {
-        const list = document.getElementById('subsidiaryList');
-        const btn = document.getElementById('subToggle');
-        if (list.style.display === 'grid') {
-            list.style.display = 'none';
-            btn.innerText = "Open Subsidiaries";
-        } else {
-            list.style.display = 'grid';
-            btn.innerText = "Close Subsidiaries";
-        }
-    }
+function redirectBack(){
+if(from){
+window.location.href=`https://${from}.cupx.in`
+}else{
+window.location.href="https://cupx.in"
+}
+}
 
-    function showDashboard(user) {
-        document.getElementById('authBox').style.display = 'none';
-        document.getElementById('dashboardBox').style.display = 'block';
-        document.getElementById('userInfo').innerHTML = `
-            <strong>Username:</strong> ${user.username}<br>
-            <strong>UPI ID:</strong> ${user.upi_id}<br>
-            <strong>Balance:</strong> ₹${user.balance}
-        `;
-    }
+document.getElementById("homeBtn").onclick = redirectBack
 
-    function logout() {
-        localStorage.removeItem("cupx_user");
-        location.reload();
-    }
+let isSignup=false
 
-    document.getElementById('authForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const u = document.getElementById('user').value.trim().toLowerCase();
-        const p = document.getElementById('pass').value;
-        const msg = document.getElementById('msg');
+function toggleMode(){
+isSignup=!isSignup
+document.getElementById('title').innerText=isSignup?"Sign up":"Sign in"
+document.getElementById('nameDiv').style.display=isSignup?"block":"none"
+document.getElementById('confirmDiv').style.display=isSignup?"block":"none"
+document.getElementById('switchBtn').innerText=
+isSignup?"Already have account? Signin":"Don't have account? Signup"
+}
 
-        if (isSignup) {
-            const fn = document.getElementById('fullname').value.trim();
-            const { error } = await client.from('users').insert([{ 
-                username: u, password: p, full_name: fn, upi_id: u + "@cupx", balance: 1000 
-            }]);
-            if (error) msg.innerText = error.message;
-            else { alert("Signup Successful!"); toggleMode(); }
-        } else {
-            const { data, error } = await client.from('users').select('*').eq('username', u).eq('password', p).single();
-            if (error || !data) msg.innerText = "Invalid credentials.";
-            else { localStorage.setItem("cupx_user", JSON.stringify(data)); showDashboard(data); }
-        }
-    });
+function togglePass(id,btn){
+const field=document.getElementById(id)
+const hidden=field.type==="password"
+field.type=hidden?"text":"password"
+btn.innerText=hidden?"Hide":"Show"
+}
 
-    const savedUser = JSON.parse(localStorage.getItem("cupx_user"));
-    if (savedUser) showDashboard(savedUser);
+function toggleSubs(){
+const list=document.getElementById('subsidiaryList')
+list.style.display=list.style.display==="grid"?"none":"grid"
+}
+
+function showDashboard(user){
+document.getElementById('authBox').style.display="none"
+document.getElementById('dashboardBox').style.display="block"
+
+document.getElementById('userInfo').innerHTML=
+`Username: ${user.username}<br>
+UPI ID: ${user.upi_id}<br>
+Balance: ₹${user.balance}`
+}
+
+function logout(){
+localStorage.removeItem("cupx_user")
+location.reload()
+}
+
+function goTo(site){
+window.location.href=`https://${site}.cupx.in`
+}
+
+document.getElementById('authForm').addEventListener('submit',async(e)=>{
+
+e.preventDefault()
+
+const u=document.getElementById('user').value.trim().toLowerCase()
+const p=document.getElementById('pass').value
+const msg=document.getElementById('msg')
+
+const regex=/^[a-z0-9]{11,22}$/
+
+if(!regex.test(u)){
+msg.innerText="Username must be 11-22 lowercase letters and numbers"
+return
+}
+
+if(isSignup){
+
+const confirm=document.getElementById('confirmPass').value
+const fn=document.getElementById('fullname').value
+
+if(p!==confirm){
+msg.innerText="Passwords do not match"
+return
+}
+
+const {error}=await client.from('users').insert([{
+username:u,
+password:p,
+full_name:fn,
+upi_id:u+"@cupx",
+balance:1000
+}])
+
+if(error) msg.innerText=error.message
+else{
+alert("Signup Successful")
+toggleMode()
+}
+
+}else{
+
+const {data,error}=await client
+.from('users')
+.select('*')
+.eq('username',u)
+.eq('password',p)
+.single()
+
+if(error||!data){
+msg.innerText="Invalid credentials"
+}else{
+localStorage.setItem("cupx_user",JSON.stringify(data))
+redirectBack()
+}
+
+}
+
+})
+
+const saved=JSON.parse(localStorage.getItem("cupx_user"))
+if(saved) showDashboard(saved)
+
 </script>
+
 </body>
 </html>

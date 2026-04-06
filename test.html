@@ -1,380 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Auth | CupX Corporation</title>
-<meta name="description" content="Authentication portal for CupX ecosystem." />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auth | CupX Corporation</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+        /* Header Styling */
+        header {
+            background: #020617;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+        }
 
-<style>
+        .logo { font-size: 20px; font-weight: bold; color: #38bdf8; letter-spacing: 1px; }
+        header a { color: #38bdf8; text-decoration: none; font-size: 14px; }
 
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-}
+        .page { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
 
-body{
-font-family:Arial, Helvetica, sans-serif;
-background:#0f172a;
-color:#e5e7eb;
-min-height:100vh;
-display:flex;
-flex-direction:column;
-}
+        /* Auth Box */
+        .box {
+            background: #020617;
+            padding: 35px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
 
-header{
-background:#020617;
-padding:20px 25px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
+        h1 { text-align: center; margin-bottom: 8px; font-size: 26px; color: #f8fafc; }
+        .subtitle { text-align: center; font-size: 14px; opacity: .7; margin-bottom: 25px; }
 
-.logo{
-font-size:22px;
-font-weight:bold;
-}
+        /* Unified Input Styling */
+        .input-group { position: relative; margin-bottom: 20px; width: 100%; }
 
-header a{
-color:#38bdf8;
-text-decoration:none;
-font-size:14px;
-}
+        input {
+            width: 100%;
+            height: 48px; /* Equal height for all boxes */
+            padding: 0 15px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #ffffff;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+            display: block;
+        }
 
-.page{
-flex:1;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:20px;
-}
+        input:focus { border-color: #38bdf8; }
 
-.box{
-background:#020617;
-padding:30px;
-width:100%;
-max-width:380px;
-border-radius:8px;
-box-shadow:0 10px 30px rgba(0,0,0,0.4);
-}
+        /* Text-based Show/Hide Toggle */
+        .toggle-text {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            color: #38bdf8;
+            text-transform: uppercase;
+            user-select: none;
+            letter-spacing: 0.5px;
+        }
 
-h1{
-text-align:center;
-margin-bottom:5px;
-}
+        /* Buttons */
+        button {
+            width: 100%;
+            height: 48px;
+            background: #38bdf8;
+            color: #020617;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: opacity 0.2s;
+        }
 
-.subtitle{
-text-align:center;
-font-size:14px;
-opacity:.85;
-margin-bottom:20px;
-}
+        button:hover { opacity: 0.9; }
 
-.input-group{
-position:relative;
-margin-bottom:16px;
-}
+        .google-btn {
+            background: #ffffff;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #e5e7eb;
+        }
 
-input{
-width:100%;
-padding:10px 12px;
-border-radius:4px;
-border:none;
-outline:none;
-font-size:14px;
-background:#1e293b;
-color:#e5e7eb;
-}
+        .switch {
+            text-align: center;
+            font-size: 14px;
+            color: #38bdf8;
+            margin-top: 20px;
+            cursor: pointer;
+        }
 
-.eye{
-position:absolute;
-right:10px;
-top:10px;
-cursor:pointer;
-opacity:.7;
-display:flex;
-align-items:center;
-justify-content:center;
-}
+        .error { color: #f87171; font-size: 13px; text-align: center; margin-bottom: 15px; min-height: 18px; }
 
-button{
-display:flex;
-align-items:center;
-justify-content:center;
-gap:8px;
-width:100%;
-padding:10px;
-background:#38bdf8;
-color:#020617;
-border:none;
-border-radius:4px;
-font-size:15px;
-font-weight:bold;
-cursor:pointer;
-margin-bottom:10px;
-}
-
-button:hover{
-background:#0ea5e9;
-}
-
-.google{
-background:white;
-color:black;
-}
-
-.switch{
-text-align:center;
-font-size:13px;
-cursor:pointer;
-opacity:.8;
-margin-top:10px;
-}
-
-.error{
-color:#ef4444;
-font-size:13px;
-margin-bottom:10px;
-}
-
-footer{
-background:#020617;
-border-top:1px solid #1e293b;
-padding:20px;
-text-align:center;
-font-size:13px;
-opacity:.7;
-margin-top:auto;
-}
-
-</style>
-
+        /* Footer */
+        footer {
+            background: #020617;
+            padding: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            border-top: 1px solid #1e293b;
+        }
+    </style>
 </head>
-
 <body>
 
 <header>
-<div class="logo">CupX Corporation</div>
-<a id="backBtn" href="https://cupx.in">← Back to Home</a>
+    <div class="logo">CupX Corp</div>
+    <a href="https://cupx.in">← Home</a>
 </header>
 
 <div class="page">
+    <div class="box">
+        <h1 id="title">Sign in</h1>
+        <p class="subtitle">Access CupX ecosystem</p>
+        
+        <div id="msg" class="error"></div>
 
-<div class="box">
+        <button class="google-btn" onclick="googleLogin()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
+            Continue with Google
+        </button>
 
-<h1 id="title">Sign in</h1>
-<p class="subtitle">Access CupX ecosystem</p>
+        <form id="authForm">
+            <div id="nameDiv" style="display:none" class="input-group">
+                <input type="text" id="fullname" placeholder="Full Name">
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="user" placeholder="Username" required>
+            </div>
 
-<div id="message"></div>
+            <div class="input-group">
+                <input type="password" id="pass" placeholder="Password" required>
+                <span class="toggle-text" onclick="togglePass('pass', this)">Show</span>
+            </div>
 
-<button class="google" onclick="googleLogin()">
+            <div id="confirmDiv" style="display:none" class="input-group">
+                <input type="password" id="confirmPass" placeholder="Confirm Password">
+                <span class="toggle-text" onclick="togglePass('confirmPass', this)">Show</span>
+            </div>
 
-<svg width="18" height="18" viewBox="0 0 48 48">
-<path fill="#EA4335" d="M24 9.5c3.4 0 6.5 1.2 8.9 3.2l6.6-6.6C35.7 2.3 30.2 0 24 0 14.6 0 6.4 5.4 2.4 13.2l7.7 6C12.2 13.2 17.6 9.5 24 9.5z"/>
-<path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-2.7-.4-3.9H24v7.3h12.7c-.3 1.8-1.9 4.5-5.3 6.3l8.1 6.3c4.7-4.3 7-10.7 7-16z"/>
-<path fill="#FBBC05" d="M10.1 28.8c-.5-1.4-.8-2.9-.8-4.3s.3-2.9.8-4.3l-7.7-6C.9 17.2 0 20.5 0 24.5s.9 7.3 2.4 10.3l7.7-6z"/>
-<path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-8.1-6.3c-2.2 1.5-5.1 2.5-7.1 2.5-6.4 0-11.8-3.7-13.8-9.2l-7.7 6C6.4 42.6 14.6 48 24 48z"/>
-</svg>
+            <button type="submit">Continue</button>
+        </form>
 
-Continue with Google
-
-</button>
-
-<form id="form" onsubmit="return false;">
-
-<div id="fullnameField" style="display:none;">
-<div class="input-group">
-<input id="fullname" placeholder="Full Name">
-</div>
-</div>
-
-<div class="input-group">
-<input id="username" placeholder="Username">
-</div>
-
-<div class="input-group">
-
-<input type="password" id="password" placeholder="Password">
-
-<div class="eye" onclick="togglePassword(this,'password')">
-<svg viewBox="0 0 24 24" width="18" height="18">
-<path fill="none" stroke="#94a3b8" stroke-width="2"
-d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
-<circle cx="12" cy="12" r="3"
-fill="none" stroke="#94a3b8" stroke-width="2"/>
-</svg>
-</div>
-
-</div>
-
-<div id="confirmField" style="display:none;">
-<div class="input-group">
-<input type="password" id="confirm" placeholder="Confirm Password">
-<div class="eye" onclick="togglePassword(this,'confirm')">
-<svg viewBox="0 0 24 24" width="18" height="18">
-<path fill="none" stroke="#94a3b8" stroke-width="2"
-d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
-<circle cx="12" cy="12" r="3"
-fill="none" stroke="#94a3b8" stroke-width="2"/>
-</svg>
-</div>
-</div>
-</div>
-
-<button onclick="submitForm()">Continue</button>
-
-</form>
-
-<div class="switch" onclick="toggleMode()" id="switchText">
-Don't have account? Signup
-</div>
-
-</div>
-
+        <div class="switch" onclick="toggleMode()" id="switchBtn">
+            Don't have account? Signup
+        </div>
+    </div>
 </div>
 
 <footer>
-© CupX Corporation • Authentication System
+    © 2026 CupX Corporation • Secure Authentication System
 </footer>
 
 <script>
+    // Supabase Configuration
+    const client = supabase.createClient("https://astnfrwbebzxcxlltpkn.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdG5mcndiZWJ6eGN4bGx0cGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjg2OTIsImV4cCI6MjA5MDgwNDY5Mn0.gqp08ROPoDZWyE0KVtV-VCFdTmEXl4HOEL8v7Xjd0I4");
 
-const supabaseUrl="https://astnfrwbebzxcxlltpkn.supabase.co"
-const supabaseKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdG5mcndiZWJ6eGN4bGx0cGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjg2OTIsImV4cCI6MjA5MDgwNDY5Mn0.gqp08ROPoDZWyE0KVtV-VCFdTmEXl4HOEL8v7Xjd0I4"
+    let isSignup = false;
 
-const supabase=window.supabase.createClient(
-supabaseUrl,
-supabaseKey
-)
+    // Toggle between Login and Signup modes
+    function toggleMode() {
+        isSignup = !isSignup;
+        document.getElementById('title').innerText = isSignup ? "Sign up" : "Sign in";
+        document.getElementById('nameDiv').style.display = isSignup ? "block" : "none";
+        document.getElementById('confirmDiv').style.display = isSignup ? "block" : "none";
+        document.getElementById('switchBtn').innerText = isSignup ? "Already have account? Signin" : "Don't have account? Signup";
+        document.getElementById('msg').innerText = "";
+    }
 
-let signup=false
+    // Toggle Password visibility with Text
+    function togglePass(fieldId, btnElement) {
+        const field = document.getElementById(fieldId);
+        if (field.type === "password") {
+            field.type = "text";
+            btnElement.innerText = "Hide";
+        } else {
+            field.type = "password";
+            btnElement.innerText = "Show";
+        }
+    }
 
-const params=new URLSearchParams(window.location.search)
-const from=params.get("from")
+    // Form Submission Handling
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const u = document.getElementById('user').value.trim();
+        const p = document.getElementById('pass').value;
+        const msg = document.getElementById('msg');
+        msg.innerText = "";
 
-if(from){
-document.getElementById("backBtn").href=`https://${from}.cupx.in`
-}
+        if (isSignup) {
+            const fn = document.getElementById('fullname').value.trim();
+            const cp = document.getElementById('confirmPass').value;
 
-function redirectBack(){
-if(from){
-window.location.href=`https://${from}.cupx.in`
-}else{
-window.location.href="https://cupx.in"
-}
-}
+            if (!fn) return msg.innerText = "Full name is required";
+            if (p !== cp) return msg.innerText = "Passwords do not match";
+            if (p.length < 6) return msg.innerText = "Password must be at least 6 characters";
 
-function toggleMode(){
-signup=!signup
+            const { error } = await client.from('users').insert([{ 
+                username: u.toLowerCase(), 
+                password: p, 
+                full_name: fn, 
+                upi_id: u.toLowerCase() + "@cupx",
+                balance: 1000 
+            }]);
 
-document.getElementById("title").innerText=
-signup?"Sign up":"Sign in"
+            if (error) msg.innerText = error.message;
+            else { alert("Signup Successful! You can now login."); toggleMode(); }
+            
+        } else {
+            // Login Logic
+            const { data, error } = await client.from('users')
+                .select('*')
+                .eq('username', u.toLowerCase())
+                .eq('password', p)
+                .single();
 
-document.getElementById("fullnameField").style.display=
-signup?"block":"none"
+            if (error || !data) {
+                msg.innerText = "Invalid credentials. Please try again.";
+            } else {
+                localStorage.setItem("cupx_user", JSON.stringify(data));
+                const params = new URLSearchParams(window.location.search);
+                const from = params.get("from");
+                window.location.href = from ? `https://${from}.cupx.in` : "https://cupx.in";
+            }
+        }
+    });
 
-document.getElementById("confirmField").style.display=
-signup?"block":"none"
-
-document.getElementById("switchText").innerText=
-signup?"Already have account? Signin":
-"Don't have account? Signup"
-}
-
-function togglePassword(el,id){
-
-const input=document.getElementById(id)
-
-if(input.type==="password"){
-input.type="text"
-}else{
-input.type="password"
-}
-
-}
-
-function showError(msg){
-document.getElementById("message").innerHTML=`<div class="error">${msg}</div>`
-}
-
-async function submitForm(){
-
-const username=document.getElementById("username").value
-const password=document.getElementById("password").value
-const confirm=document.getElementById("confirm").value
-const fullname=document.getElementById("fullname").value
-
-if(signup){
-
-if(!fullname){
-showError("Full name required")
-return
-}
-
-if(password!==confirm){
-showError("Passwords do not match")
-return
-}
-
-const {error}=await supabase
-.from("users")
-.insert([{
-username,
-full_name:fullname,
-password,
-upi_id:username+"@cupx"
-}])
-
-if(error){
-showError(error.message)
-}else{
-redirectBack()
-}
-
-}else{
-
-const {data,error}=await supabase
-.from("users")
-.select("*")
-.eq("username",username)
-.eq("password",password)
-.single()
-
-if(error||!data){
-showError("Invalid credentials")
-}else{
-
-localStorage.setItem("cupx_user",JSON.stringify(data))
-
-redirectBack()
-
-}
-
-}
-
-}
-
-async function googleLogin(){
-
-await supabase.auth.signInWithOAuth({
-provider:"google",
-options:{
-redirectTo:window.location.href
-}
-})
-
-}
-
-supabase.auth.getSession().then(({data})=>{
-if(data.session){
-redirectBack()
-}
-})
-
+    async function googleLogin() {
+        await client.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin }
+        });
+    }
 </script>
-
 </body>
 </html>

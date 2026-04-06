@@ -137,7 +137,7 @@ border-top: 1px solid #1e293b;
 
 <header>
 <div class="logo">CupX Corporation</div>
-<a id="backBtn" href="https://cupx.in">← Back</a>
+<a href="https://cupx.in">← Back to Home</a>
 </header>
 
 <div class="page">
@@ -217,10 +217,6 @@ const client = supabase.createClient(
 
 const params = new URLSearchParams(window.location.search)
 const from = params.get("from")
-
-if(from){
-document.getElementById("backBtn").href = `https://${from}.cupx.in`
-}
 
 function redirectBack(){
 if(from){
@@ -326,7 +322,7 @@ if(error||!data){
 msg.innerText="Invalid credentials"
 }else{
 localStorage.setItem("cupx_user",JSON.stringify(data))
-redirectBack()
+showDashboard(data)
 }
 
 }

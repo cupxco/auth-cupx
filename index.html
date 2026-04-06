@@ -1,274 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Login | CupX Corporation</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auth | CupX Corporation</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+        /* Header Styling */
+        header {
+            background: #020617;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+        }
 
-<style>
-*, *::before, *::after { box-sizing: border-box; }
+        .logo { font-size: 20px; font-weight: bold; color: #38bdf8; letter-spacing: 1px; }
+        header a { color: #38bdf8; text-decoration: none; font-size: 14px; }
 
-body {
-margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background:#0f172a;
-color:#e5e7eb;
-}
+        .page { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
 
-header {
-background:#020617;
-padding:20px 25px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
+        /* Auth Box */
+        .box {
+            background: #020617;
+            padding: 35px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
 
-header a {
-color:#38bdf8;
-text-decoration:none;
-font-size:14px;
-}
+        h1 { text-align: center; margin-bottom: 8px; font-size: 26px; color: #f8fafc; }
+        .subtitle { text-align: center; font-size: 14px; opacity: .7; margin-bottom: 25px; }
 
-.hamburger{
-cursor:pointer;
-font-size:20px;
-}
+        /* Unified Input Styling */
+        .input-group { position: relative; margin-bottom: 20px; width: 100%; }
 
-.menu{
-position:fixed;
-top:0;
-left:-250px;
-width:250px;
-height:100%;
-background:#020617;
-padding:20px;
-transition:0.3s;
-z-index:1000;
-}
+        input {
+            width: 100%;
+            height: 48px; /* Equal height for all boxes */
+            padding: 0 15px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #ffffff;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+            display: block;
+        }
 
-.menu.show{
-left:0;
-}
+        input:focus { border-color: #38bdf8; }
 
-.menu a{
-display:block;
-color:#38bdf8;
-margin:15px 0;
-text-decoration:none;
-}
+        /* Text-based Show/Hide Toggle */
+        .toggle-text {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            color: #38bdf8;
+            text-transform: uppercase;
+            user-select: none;
+            letter-spacing: 0.5px;
+        }
 
-.page{
-min-height:calc(100vh - 64px);
-display:flex;
-justify-content:center;
-align-items:center;
-padding:20px;
-}
+        /* Buttons */
+        button {
+            width: 100%;
+            height: 48px;
+            background: #38bdf8;
+            color: #020617;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: opacity 0.2s;
+        }
 
-.login-box{
-background:#020617;
-padding:30px;
-width:100%;
-max-width:360px;
-border-radius:8px;
-box-shadow:0 10px 30px rgba(0,0,0,0.4);
-}
+        button:hover { opacity: 0.9; }
 
-h1{
-text-align:center;
-margin:0 0 5px;
-}
+        .google-btn {
+            background: #ffffff;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #e5e7eb;
+        }
 
-.subtitle{
-text-align:center;
-font-size:14px;
-opacity:0.85;
-margin:0 0 25px;
-}
+        .switch {
+            text-align: center;
+            font-size: 14px;
+            color: #38bdf8;
+            margin-top: 20px;
+            cursor: pointer;
+        }
 
-input{
-width:100%;
-padding:10px;
-margin-bottom:15px;
-background:#1e293b;
-border:none;
-color:white;
-border-radius:4px;
-}
+        .error { color: #f87171; font-size: 13px; text-align: center; margin-bottom: 15px; min-height: 18px; }
 
-button{
-width:100%;
-padding:10px;
-background:#38bdf8;
-border:none;
-border-radius:4px;
-cursor:pointer;
-font-weight:bold;
-}
-
-.dashboard{
-display:none;
-text-align:center;
-}
-
-.dashboard button{
-margin-top:10px;
-}
-
-.logout{
-background:#ef4444;
-margin-top:15px;
-}
-
-</style>
+        /* Footer */
+        footer {
+            background: #020617;
+            padding: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            border-top: 1px solid #1e293b;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="menu" id="menu">
-<h3>CupX</h3>
-
-<a href="https://amazx.cupx.in">Amazx</a>
-<a href="https://flipx.cupx.in">Flipx</a>
-<a href="https://pay.cupx.in">Pay</a>
-<a href="https://upi.cupx.in">UPI</a>
-
-<button onclick="logout()" class="logout">Logout</button>
-
-</div>
-
 <header>
-<div class="hamburger" onclick="toggleMenu()">☰</div>
-<strong>CupX Corporation</strong>
-<a href="https://cupx.in">← Home</a>
+    <div class="logo">CupX Corporation</div>
+    <a href="https://cupx.in">← Back to Home</a>
 </header>
 
 <div class="page">
+    <div class="box">
+        <h1 id="title">Sign in</h1>
+        <p class="subtitle">Access CupX ecosystem</p>
+        
+        <div id="msg" class="error"></div>
 
-<div class="login-box" id="authBox">
+        <button class="google-btn" onclick="googleLogin()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
+            Continue with Google
+        </button>
 
-<h1>CupX Login</h1>
-<p class="subtitle">Access CupX tools & services</p>
+        <form id="authForm">
+            <div id="nameDiv" style="display:none" class="input-group">
+                <input type="text" id="fullname" placeholder="Full Name">
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="user" placeholder="Username" required>
+            </div>
 
-<input id="username" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
+            <div class="input-group">
+                <input type="password" id="pass" placeholder="Password" required>
+                <span class="toggle-text" onclick="togglePass('pass', this)">Show</span>
+            </div>
 
-<button onclick="login()">Login</button>
-<button onclick="signup()">Signup</button>
+            <div id="confirmDiv" style="display:none" class="input-group">
+                <input type="password" id="confirmPass" placeholder="Confirm Password">
+                <span class="toggle-text" onclick="togglePass('confirmPass', this)">Show</span>
+            </div>
 
-<p id="status"></p>
+            <button type="submit">Continue</button>
+        </form>
 
+        <div class="switch" onclick="toggleMode()" id="switchBtn">
+            Don't have account? Signup
+        </div>
+    </div>
 </div>
 
-<div class="login-box dashboard" id="dashboard">
-
-<h2>Welcome</h2>
-<p id="userInfo"></p>
-
-<button onclick="openSite('https://amazx.cupx.in')">Open Amazx</button>
-<button onclick="openSite('https://flipx.cupx.in')">Open Flipx</button>
-<button onclick="openSite('https://pay.cupx.in')">Open Pay</button>
-<button onclick="openSite('https://upi.cupx.in')">Open UPI</button>
-
-<button class="logout" onclick="logout()">Logout</button>
-
-</div>
-
-</div>
+<footer>
+    © 2026 CupX Corporation • Secure Authentication System
+</footer>
 
 <script>
+    // Supabase Configuration
+    const client = supabase.createClient("https://astnfrwbebzxcxlltpkn.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdG5mcndiZWJ6eGN4bGx0cGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjg2OTIsImV4cCI6MjA5MDgwNDY5Mn0.gqp08ROPoDZWyE0KVtV-VCFdTmEXl4HOEL8v7Xjd0I4");
 
-const supabaseUrl = "https://astnfrwbebzxcxlltpkn.supabase.co"
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdG5mcndiZWJ6eGN4bGx0cGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjg2OTIsImV4cCI6MjA5MDgwNDY5Mn0.gqp08ROPoDZWyE0KVtV-VCFdTmEXl4HOEL8v7Xjd0I4"
+    let isSignup = false;
 
-const supabaseClient = window.supabase.createClient(
-supabaseUrl,
-supabaseKey
-)
+    // Toggle between Login and Signup modes
+    function toggleMode() {
+        isSignup = !isSignup;
+        document.getElementById('title').innerText = isSignup ? "Sign up" : "Sign in";
+        document.getElementById('nameDiv').style.display = isSignup ? "block" : "none";
+        document.getElementById('confirmDiv').style.display = isSignup ? "block" : "none";
+        document.getElementById('switchBtn').innerText = isSignup ? "Already have account? Signin" : "Don't have account? Signup";
+        document.getElementById('msg').innerText = "";
+    }
 
-async function signup(){
+    // Toggle Password visibility with Text
+    function togglePass(fieldId, btnElement) {
+        const field = document.getElementById(fieldId);
+        if (field.type === "password") {
+            field.type = "text";
+            btnElement.innerText = "Hide";
+        } else {
+            field.type = "password";
+            btnElement.innerText = "Show";
+        }
+    }
 
-const username=document.getElementById("username").value
-const password=document.getElementById("password").value
+    // Form Submission Handling
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const u = document.getElementById('user').value.trim();
+        const p = document.getElementById('pass').value;
+        const msg = document.getElementById('msg');
+        msg.innerText = "";
 
-const {data,error}=await supabaseClient
-.from("users")
-.insert([{
-username:username,
-password:password,
-upi_id:username+"@cupx",
-balance:1000
-}])
+        if (isSignup) {
+            const fn = document.getElementById('fullname').value.trim();
+            const cp = document.getElementById('confirmPass').value;
 
-if(error){
-document.getElementById("status").innerText=error.message
-}else{
-document.getElementById("status").innerText="Signup success"
-}
+            if (!fn) return msg.innerText = "Full name is required";
+            if (p !== cp) return msg.innerText = "Passwords do not match";
+            if (p.length < 6) return msg.innerText = "Password must be at least 6 characters";
 
-}
+            const { error } = await client.from('users').insert([{ 
+                username: u.toLowerCase(), 
+                password: p, 
+                full_name: fn, 
+                upi_id: u.toLowerCase() + "@cupx",
+                balance: 1000 
+            }]);
 
-async function login(){
+            if (error) msg.innerText = error.message;
+            else { alert("Signup Successful! You can now login."); toggleMode(); }
+            
+        } else {
+            // Login Logic
+            const { data, error } = await client.from('users')
+                .select('*')
+                .eq('username', u.toLowerCase())
+                .eq('password', p)
+                .single();
 
-const username=document.getElementById("username").value
-const password=document.getElementById("password").value
+            if (error || !data) {
+                msg.innerText = "Invalid credentials. Please try again.";
+            } else {
+                localStorage.setItem("cupx_user", JSON.stringify(data));
+                const params = new URLSearchParams(window.location.search);
+                const from = params.get("from");
+                window.location.href = from ? `https://${from}.cupx.in` : "https://cupx.in";
+            }
+        }
+    });
 
-const {data,error}=await supabaseClient
-.from("users")
-.select("*")
-.eq("username",username)
-.eq("password",password)
-.single()
-
-if(error){
-document.getElementById("status").innerText="Login failed"
-}else{
-
-localStorage.setItem("cupx_user",JSON.stringify(data))
-showDashboard(data)
-
-}
-
-}
-
-function showDashboard(user){
-
-document.getElementById("authBox").style.display="none"
-document.getElementById("dashboard").style.display="block"
-
-document.getElementById("userInfo").innerText=
-"User: "+user.username+" | UPI: "+user.upi_id
-
-}
-
-function logout(){
-
-localStorage.removeItem("cupx_user")
-location.reload()
-
-}
-
-function openSite(url){
-
-window.location.href=url
-
-}
-
-function toggleMenu(){
-
-document.getElementById("menu").classList.toggle("show")
-
-}
-
-const savedUser=JSON.parse(localStorage.getItem("cupx_user"))
-
-if(savedUser){
-showDashboard(savedUser)
-}
-
+    async function googleLogin() {
+        await client.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin }
+        });
+    }
 </script>
-
 </body>
 </html>
